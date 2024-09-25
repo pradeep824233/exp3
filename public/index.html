@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Signup Form</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f7f9fc;
+        color: #333;
+        display: flex;
+        justify-content: center;
+        width: 100%;
+      }
+      .container {
+        width: 100%;
+        padding: 30px;
+        display: flex;
+        justify-content: space-around;
+      }
+      h1 {
+        font-size: 24px;
+        margin-bottom: 20px;
+        color: #000000;
+        text-align: center;
+      }
+      h2 {
+        font-size: 20px;
+        margin-top: 30px;
+        color: #000000;
+        text-align: center;
+      }
+      form {
+        border: 2px solid black;
+        margin-bottom: 20px;
+        min-width: 360px;
+        padding: 1rem;
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: #555;
+      }
+      .form-group input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #000000;
+        font-size: 14px;
+        box-sizing: border-box;
+      }
+      .form-group input:focus {
+        border-color: #1a73e8;
+        outline: none;
+      }
+      button {
+        width: 100%;
+        padding: 10px;
+        background-color: #000000;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+      button:hover {
+        background-color: #1664c1;
+      }
+      .user-list {
+        list-style-type: none;
+        padding: 0;
+      }
+      .user-list li {
+        margin-bottom: 10px;
+        padding: 10px;
+        border-bottom: 1px solid rgb(107, 107, 107);
+      }
+      .registerd-users {
+        width: 400px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <form id="signupForm">
+        <h1>Signup Form</h1>
+        <div class="form-group">
+          <label for="name">Name:</label>
+          <input type="text" id="name" name="name" required />
+        </div>
+        <div class="form-group">
+          <label for="username">Username:</label>
+          <input type="text" id="username" name="username" required />
+        </div>
+        <div class="form-group">
+          <label for="email">Email:</label>
+          <input type="email" id="email" name="email" required />
+        </div>
+        <div class="form-group">
+          <label for="password">Password:</label>
+          <input type="password" id="password" name="password" required />
+        </div>
+        <button type="submit">Sign Up</button>
+      </form>
+
+      <div class="registerd-users">
+        <h2>Registered Users</h2>
+        <ul id="userList" class="user-list"></ul>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const form = document.getElementById("signupForm");
+        const userList = document.getElementById("userList");
+
+        form.addEventListener("submit", async (event) => {
+          event.preventDefault();
+
+          const formData = new FormData(form);
+          const data = {
+            name: formData.get("name"),
+            username: formData.get("username"),
+            email: formData.get("email"),
+            password: formData.get("password"),
+          };
+
+          try {
+            const response = await fetch("http://localhost:3000/api/signup", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(data),
+            });
+
+            if (response.ok) {
+              alert("User signed up successfully!");
+              form.reset();
+              fetchUsers();
+            } else {
+              alert("Failed to sign up user.");
+            }
+          } catch (error) {
+            console.error("Error during signup:", error);
+            alert("An error occurred.");
+          }
+        });
+
+        async function fetchUsers() {
+          try {
+            const response = await fetch("http://localhost:3000/api/users");
+            const users = await response.json();
+
+            userList.innerHTML = users
+              .map(
+                (user) => `
+                        <li>
+                          <strong>Name:</strong> ${user.name}<br>
+                          <strong>Username:</strong> ${user.username}<br>
+                          <strong>Email:</strong> ${user.email}
+                        </li>
+                        `
+              )
+              .join("");
+          } catch (error) {
+            console.error("Error fetching users:", error);
+          }
+        }
+
+        fetchUsers();
+      });
+    </script>
+  </body>
+</html>
